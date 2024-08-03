@@ -1,17 +1,143 @@
 <script setup lang="ts">
 // Define props
 const props = defineProps<{
-  userID: string,
+  userID: string
   nextPageCallback: () => void
   declineCallback: () => void
 }>()
+
+// Create the SVG canvas
+import * as d3 from 'd3'
+import { onMounted } from 'vue'
+
+onMounted(() => {
+  const container = d3.select('#trend-widget')
+  //@ts-ignore
+  const bounds = container.node()?.getBoundingClientRect() ?? { width: 0, height: 0 }
+  const { width, height } = bounds
+  const margin = { top: 12, right: 0, bottom: 12, left: 0 }
+  const svg = container
+    .append('svg')
+    .attr('width', width)
+    .attr('height', height)
+    .append('g')
+    .attr('transform', `translate(${margin.left},${margin.top})`)
+  const layer1 = svg.append('g').attr('class', 'layer1')
+  const layer2 = svg.append('g').attr('class', 'layer2')
+
+  // Define line positions
+  const lineData = [
+    { x: width / 3, y1: margin.top, y2: height - margin.bottom - margin.top },
+    { x: (2 * width) / 3, y1: margin.top, y2: height - margin.bottom - margin.top }
+  ]
+
+  // Draw vertical lines
+  layer1
+    .selectAll('.line')
+    .data(lineData)
+    .enter()
+    .append('line')
+    .attr('x1', (d) => d.x)
+    .attr('x2', (d) => d.x)
+    .attr('y1', (d) => d.y1)
+    .attr('y2', (d) => d.y2)
+    .attr('stroke', 'black')
+    .attr('stroke-width', 2)
+
+  // Add value labels at the top and bottom of each line
+  svg
+    .selectAll('.top-label')
+    .data(lineData)
+    .enter()
+    .append('text')
+    .attr('x', (d) => d.x)
+    .attr('y', (d) => d.y1 - 5)
+    .attr('text-anchor', 'middle')
+    .text((d, i) => `Top ${i + 1}`)
+
+  svg
+    .selectAll('.bottom-label')
+    .data(lineData)
+    .enter()
+    .append('text')
+    .attr('x', (d) => d.x)
+    .attr('y', (d) => d.y2 - 5)
+    .attr('text-anchor', 'middle')
+    .attr('alignment-baseline', 'text-before-edge')
+    .text((d, i) => `Bottom ${i + 1}`)
+
+  // Initial circle positions
+  const circleData = [
+    { cx: lineData[0].x, cy: height / 2 },
+    { cx: lineData[1].x, cy: height / 2 }
+  ]
+
+  // Function to constrain movement to vertical line
+  function dragCircle(evt: any) {
+    //@ts-ignore
+    const d = this
+    const y1 = lineData[0].y1
+    const y2 = lineData[0].y2
+    const mouse_y = d3.pointer(evt, svg.node())[1]
+    const relative_y = Math.max(y1, Math.min(y2, mouse_y))
+    d3.select(d).attr('cy', relative_y)
+
+    // Update connecting line
+    const coords = layer2
+      .selectAll('.circle')
+      .nodes()
+      .map((node) => {
+        return {
+          x: +d3.select(node).attr('cx'),
+          y: +d3.select(node).attr('cy')
+        }
+      })
+    layer1
+      .select('.connecting-line')
+      .attr('x1', coords[0].x)
+      .attr('y1', coords[0].y)
+      .attr('x2', coords[1].x)
+      .attr('y2', coords[1].y)
+  }
+
+  // Draw circles
+  layer2
+    .selectAll('.circle')
+    .data(circleData)
+    .enter()
+    .append('circle')
+    .attr('class', 'circle')
+    .attr('cx', (d) => d.cx)
+    .attr('cy', (d) => d.cy)
+    .attr('r', 10)
+    .attr('fill', 'steelblue')
+    .attr('z-index', -2)
+    .call(d3.drag<any, any>().on('drag', dragCircle))
+
+  // Draw connecting line
+  layer1
+    .append('line')
+    .attr('class', 'connecting-line')
+    .attr('x1', circleData[0].cx)
+    .attr('y1', circleData[0].cy)
+    .attr('x2', circleData[1].cx)
+    .attr('y2', circleData[1].cy)
+    .attr('stroke', 'red')
+    .attr('stroke-width', 2)
+    .attr('z-index', -1)
+})
 </script>
 
 <template>
   <div class="greetings">
-    <h3>
-      Trend Estimation
-    </h3>
+    <video width="640" height="360" controls>
+      <source
+        src="https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4"
+        type="video/mp4"
+      />
+      Your browser does not support the video tag.
+    </video>
+    <div id="trend-widget"></div>
   </div>
   <button @click="nextPageCallback()">Next</button>
 </template>
@@ -64,5 +190,10 @@ button:active {
 .decline:active {
   background-color: transparent;
   transform: none;
+}
+
+#trend-widget {
+  width: 640px;
+  height: 180px;
 }
 </style>

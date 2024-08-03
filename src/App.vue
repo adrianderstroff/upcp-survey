@@ -1,17 +1,17 @@
 <script setup>
-import { ref } from 'vue';
-import ComponentA from '@/components/HelloWorld.vue';
-import ComponentB from '@/components/TrendEstimation.vue';
-const currentComponent = ref(ComponentA);
+import { ref } from 'vue'
+import ComponentA from '@/components/HelloWorld.vue'
+import ComponentB from '@/components/TrendEstimation.vue'
+const currentComponent = ref(ComponentA)
 function switchComponent() {
-    currentComponent.value = ComponentB;
+  currentComponent.value = ComponentB
 }
 
 const nextPageCallback = () => {
-  switchComponent();
+  switchComponent()
 }
 const declineCallback = () => {
-  window.location.href = 'https://app.prolific.com/submissions/complete?cc=C1NJBTR8';
+  window.location.href = 'https://app.prolific.com/submissions/complete?cc=C1NJBTR8'
 }
 </script>
 
@@ -21,11 +21,12 @@ const declineCallback = () => {
   </header>
   <content>
     <keep-alive>
-      <component 
-        :is=currentComponent
-        userID="Test" 
-        :nextPageCallback=nextPageCallback 
-        :declineCallback="declineCallback">
+      <component
+        :is="currentComponent"
+        userID="Test"
+        :nextPageCallback="nextPageCallback"
+        :declineCallback="declineCallback"
+      >
       </component>
     </keep-alive>
   </content>
