@@ -2,9 +2,40 @@
 import { ref } from 'vue'
 import ComponentA from '@/components/HelloWorld.vue'
 import ComponentB from '@/components/TrendEstimation.vue'
+import SubmitResults from '@/components/SubmitResults.vue'
+
+const survey = {
+  tasks: [
+    {
+      type: 'trend',
+      dataset: {
+        columns: 5,
+        data: [
+          [1, 2, 3, 4, 5],
+          [2, 3, 4, 5, 6],
+          [3, 4, 5, 6, 7],
+          [4, 5, 6, 7, 8],
+          [5, 6, 7, 8, 9]
+        ]
+      },
+      axisIndices: [0, 1]
+    }
+  ],
+  taskIndex: -1
+}
+
 const currentComponent = ref(ComponentA)
 function switchComponent() {
-  currentComponent.value = ComponentB
+  survey.taskIndex++
+
+  if (survey.taskIndex == survey.tasks.length) {
+    currentComponent.value = SubmitResults
+    return
+  } else if (survey.taskIndex > survey.tasks.length) {
+    window.location.href = 'https://app.prolific.com/submissions/complete?cc=C1BRSWJ9'
+  } else {
+    currentComponent.value = ComponentB
+  }
 }
 
 const nextPageCallback = () => {
@@ -16,30 +47,22 @@ const declineCallback = () => {
 </script>
 
 <template>
-  <header>
-    <h1 class="green">uPCP Survey</h1>
-  </header>
-  <content>
+  <div class="content">
     <keep-alive>
       <component
         :is="currentComponent"
         userID="Test"
+        :survey="survey"
         :nextPageCallback="nextPageCallback"
         :declineCallback="declineCallback"
       >
       </component>
     </keep-alive>
-  </content>
+  </div>
 </template>
 
 <style scoped>
-header {
-  font-size: 2em;
-  text-align: center;
-  margin-bottom: 2em;
-}
-
-content {
+.content {
   display: flex;
   flex-direction: column;
   align-items: center;

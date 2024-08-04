@@ -1,21 +1,37 @@
 <script setup lang="ts">
+import type { Survey, TrendTask } from '@/types/dataset'
+import * as d3 from 'd3'
+import { onMounted } from 'vue'
+
 // Define props
 const props = defineProps<{
   userID: string
+  survey: Survey
   nextPageCallback: () => void
   declineCallback: () => void
 }>()
 
-// Create the SVG canvas
-import * as d3 from 'd3'
-import { onMounted } from 'vue'
+const collectUserData = () => {
+  const coords = d3
+    .select('#trend-widget')
+    .selectAll('.circle')
+    .nodes()
+    .map((node) => {
+      return {
+        x: +d3.select(node).attr('cx'),
+        y: +d3.select(node).attr('cy')
+      }
+    })
+  console.log(coords)
+  props.nextPageCallback()
+}
 
 onMounted(() => {
   const container = d3.select('#trend-widget')
   //@ts-ignore
   const bounds = container.node()?.getBoundingClientRect() ?? { width: 0, height: 0 }
   const { width, height } = bounds
-  const margin = { top: 12, right: 0, bottom: 12, left: 0 }
+  const margin = { top: 3, right: 8, bottom: 3, left: 8 }
   const svg = container
     .append('svg')
     .attr('width', width)
@@ -26,9 +42,15 @@ onMounted(() => {
   const layer2 = svg.append('g').attr('class', 'layer2')
 
   // Define line positions
+  const currentTask = props.survey.tasks[props.survey.taskIndex]
+  const numColumns = currentTask.dataset.columns
+  const columnIndices = (currentTask as TrendTask).axisIndices
+  const step = width / (numColumns - 1)
+  const x1 = columnIndices[0] * step
+  const x2 = columnIndices[1] * step
   const lineData = [
-    { x: width / 3, y1: margin.top, y2: height - margin.bottom - margin.top },
-    { x: (2 * width) / 3, y1: margin.top, y2: height - margin.bottom - margin.top }
+    { x: x1, y1: margin.top, y2: height - margin.bottom - margin.top },
+    { x: x2, y1: margin.top, y2: height - margin.bottom - margin.top }
   ]
 
   // Draw vertical lines
@@ -43,28 +65,6 @@ onMounted(() => {
     .attr('y2', (d) => d.y2)
     .attr('stroke', 'black')
     .attr('stroke-width', 2)
-
-  // Add value labels at the top and bottom of each line
-  svg
-    .selectAll('.top-label')
-    .data(lineData)
-    .enter()
-    .append('text')
-    .attr('x', (d) => d.x)
-    .attr('y', (d) => d.y1 - 5)
-    .attr('text-anchor', 'middle')
-    .text((d, i) => `Top ${i + 1}`)
-
-  svg
-    .selectAll('.bottom-label')
-    .data(lineData)
-    .enter()
-    .append('text')
-    .attr('x', (d) => d.x)
-    .attr('y', (d) => d.y2 - 5)
-    .attr('text-anchor', 'middle')
-    .attr('alignment-baseline', 'text-before-edge')
-    .text((d, i) => `Bottom ${i + 1}`)
 
   // Initial circle positions
   const circleData = [
@@ -109,7 +109,7 @@ onMounted(() => {
     .attr('class', 'circle')
     .attr('cx', (d) => d.cx)
     .attr('cy', (d) => d.cy)
-    .attr('r', 10)
+    .attr('r', 8)
     .attr('fill', 'steelblue')
     .attr('z-index', -2)
     .call(d3.drag<any, any>().on('drag', dragCircle))
@@ -139,7 +139,7 @@ onMounted(() => {
     </video>
     <div id="trend-widget"></div>
   </div>
-  <button @click="nextPageCallback()">Next</button>
+  <button @click="collectUserData()">Next</button>
 </template>
 
 <style scoped>
@@ -194,6 +194,6 @@ button:active {
 
 #trend-widget {
   width: 640px;
-  height: 180px;
+  height: 360px;
 }
 </style>

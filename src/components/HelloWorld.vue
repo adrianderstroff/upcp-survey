@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import type { Survey } from '@/types/dataset'
+
 // Define props
 const props = defineProps<{
   userID: string
+  survey: Survey
   nextPageCallback: () => void
   declineCallback: () => void
 }>()
@@ -9,10 +12,9 @@ const props = defineProps<{
 
 <template>
   <div class="greetings">
-    <!-- <h3>
-      Thank you for participating user
-      <span class="green">{{ props.userID ?? 'Unknown' }}</span> !
-    </h3> -->
+    <div class="header">
+      <h1 class="green">uPCP Survey</h1>
+    </div>
     <h3>
       Thank you for considering participation in our study. Before proceeding, please read the
       following information carefully to understand how your data will be collected, used, stored,
@@ -28,9 +30,9 @@ const props = defineProps<{
       withdraw, please contact us at
       <a href="mailto: aderstro@uni-muenster.de"> aderstro@uni-muenster.de</a>. Your data will be
       held under the legal framework of GDPR, ensuring that your rights and privacy are protected.
-      By clicking <accept>Start Survey</accept>, you acknowledge that you have read and understood
-      the above information and consent to participate in this study under these terms. Otherwise
-      press <decline>Decline</decline> and we won't collect any of your data.
+      By clicking <span class="accept">Start Survey</span>, you acknowledge that you have read and
+      understood the above information and consent to participate in this study under these terms.
+      Otherwise press <span class="decline">Decline</span> and we won't collect any of your data.
     </h3>
   </div>
   <button @click="nextPageCallback()">Start Survey</button>
@@ -46,6 +48,12 @@ content {
   height: 100%;
 }
 
+.header {
+  font-size: 2em;
+  text-align: center;
+  margin-bottom: 2em;
+}
+
 .greetings {
   display: flex;
   flex-direction: column;
@@ -58,14 +66,14 @@ h3 {
   text-align: justify;
 }
 
-h3 accept {
+h3 .accept {
   background-color: hsla(160, 100%, 37%, 1);
   padding: 0.2em 0.5em;
   border-radius: 4px;
   color: white;
 }
 
-h3 decline {
+h3 .decline {
   color: red;
   padding: 0.2em 0.5em;
   border-radius: 4px;
@@ -100,5 +108,9 @@ button:active {
 .decline:active {
   background-color: transparent;
   transform: none;
+}
+
+.inline {
+  padding: 2px;
 }
 </style>
