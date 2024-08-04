@@ -15,6 +15,7 @@ export type Task = {
 
 export interface TrendTask extends Task {
   axisIndices: [number, number]
+  userValues?: [number, number]
 }
 
 export type Survey = {

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useResultsStore } from '@/stores/resultstore'
 import type { Survey, TrendTask } from '@/types/dataset'
 import * as d3 from 'd3'
 import { onMounted } from 'vue'
@@ -22,7 +23,15 @@ const collectUserData = () => {
         y: +d3.select(node).attr('cy')
       }
     })
-  console.log(coords)
+    .reduce((acc: number[], val: { x: number; y: number }) => {
+      acc.push(val.x)
+      acc.push(val.y)
+      return acc
+    }, [])
+
+  const resultsStore = useResultsStore()
+  const name = `TrendEstimation ${props.survey.taskIndex}`
+  resultsStore.addUserResult(name, coords)
   props.nextPageCallback()
 }
 

@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import ComponentA from '@/components/HelloWorld.vue'
-import ComponentB from '@/components/TrendEstimation.vue'
+import TrendComponent from '@/components/TrendEstimation.vue'
 import SubmitResults from '@/components/SubmitResults.vue'
 
 const survey = {
@@ -19,6 +19,20 @@ const survey = {
         ]
       },
       axisIndices: [0, 1]
+    },
+    {
+      type: 'trend',
+      dataset: {
+        columns: 4,
+        data: [
+          [1, 2, 3, 4, 5],
+          [2, 3, 4, 5, 6],
+          [3, 4, 5, 6, 7],
+          [4, 5, 6, 7, 8],
+          [5, 6, 7, 8, 9]
+        ]
+      },
+      axisIndices: [1, 2]
     }
   ],
   taskIndex: -1
@@ -34,7 +48,7 @@ function switchComponent() {
   } else if (survey.taskIndex > survey.tasks.length) {
     window.location.href = 'https://app.prolific.com/submissions/complete?cc=C1BRSWJ9'
   } else {
-    currentComponent.value = ComponentB
+    currentComponent.value = TrendComponent
   }
 }
 
@@ -48,16 +62,14 @@ const declineCallback = () => {
 
 <template>
   <div class="content">
-    <keep-alive>
-      <component
-        :is="currentComponent"
-        userID="Test"
-        :survey="survey"
-        :nextPageCallback="nextPageCallback"
-        :declineCallback="declineCallback"
-      >
-      </component>
-    </keep-alive>
+    <component
+      :is="currentComponent"
+      userID="Test"
+      :survey="survey"
+      :nextPageCallback="nextPageCallback"
+      :declineCallback="declineCallback"
+    >
+    </component>
   </div>
 </template>
 
