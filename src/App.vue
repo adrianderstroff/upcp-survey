@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import ComponentA from '@/components/HelloWorld.vue'
 import TrendComponent from '@/components/TrendEstimation.vue'
+import AttentionCheck from '@/components/AttentionCheck.vue'
 import SubmitResults from '@/components/SubmitResults.vue'
 
 const survey = {
@@ -42,9 +43,10 @@ const currentComponent = ref(ComponentA)
 function switchComponent() {
   survey.taskIndex++
 
-  if (survey.taskIndex == survey.tasks.length) {
+  if (survey.taskIndex == 0) {
+    currentComponent.value = AttentionCheck
+  } else if (survey.taskIndex == survey.tasks.length) {
     currentComponent.value = SubmitResults
-    return
   } else if (survey.taskIndex > survey.tasks.length) {
     window.location.href = 'https://app.prolific.com/submissions/complete?cc=C1BRSWJ9'
   } else {
