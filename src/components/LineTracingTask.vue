@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useResultsStore } from '@/stores/resultstore'
-import type { LineTracingTask, Survey, TrendTask } from '@/types/dataset'
+import type { LineTracingTask, Survey } from '@/types/dataset'
 import * as d3 from 'd3'
 import { onMounted } from 'vue'
 
@@ -12,26 +12,27 @@ const props = defineProps<{
   declineCallback: () => void
 }>()
 
+const margin = { top: 8, right: 8, bottom: 8, left: 8 }
+
 const collectUserData = () => {
-  const coords = d3
+  const container = d3.select('#tracing-widget')
+  //@ts-ignore
+  const bounds = container.node()?.getBoundingClientRect() ?? { width: 0, height: 0 }
+  const { height } = bounds
+
+  const values = d3
     .select('#tracing-widget')
     .selectAll('.circle')
     .nodes()
     .map((node: any) => {
-      return {
-        x: +d3.select(node).attr('cx'),
-        y: +d3.select(node).attr('cy')
-      }
+      const y = +d3.select(node).attr('cy')
+      return (y - margin.top) / (height - margin.top - margin.bottom)
     })
-    .reduce((acc: number[], val: { x: number; y: number }) => {
-      acc.push(val.x)
-      acc.push(val.y)
-      return acc
-    }, [])
 
+  console.log('Values:', values)
   const resultsStore = useResultsStore()
   const name = `TrendEstimation ${props.survey.taskIndex}`
-  resultsStore.addUserResult(name, coords)
+  resultsStore.addUserResult(name, values)
   props.nextPageCallback()
 }
 
@@ -40,7 +41,6 @@ onMounted(() => {
   //@ts-ignore
   const bounds = container.node()?.getBoundingClientRect() ?? { width: 0, height: 0 }
   const { width, height } = bounds
-  const margin = { top: 3, right: 8, bottom: 3, left: 8 }
   const svg = container
     .append('svg')
     .attr('width', width)
@@ -52,11 +52,9 @@ onMounted(() => {
   const currentTask = props.survey.tasks[props.survey.taskIndex]
   const numColumns = currentTask.dataset.columns
   const columnIndex = (currentTask as LineTracingTask).axisIndex
-  const step = width / (numColumns - 1)
+  const step = (width - margin.left - margin.right) / (numColumns - 1)
   const x1 = columnIndex * step
-  const lineData = [
-    { x: x1, y1: margin.top, y2: height - margin.bottom - margin.top }
-  ]
+  const lineData = [{ x: x1, y1: margin.top, y2: height - margin.bottom - margin.top }]
 
   // Draw vertical lines
   svg
@@ -64,16 +62,15 @@ onMounted(() => {
     .data(lineData)
     .enter()
     .append('line')
-    .attr('x', (d) => d.x)
-    .attr('y', (d) => d.y1)
+    .attr('x1', (d) => d.x)
+    .attr('y1', (d) => d.y1)
+    .attr('x2', (d) => d.x)
+    .attr('y2', (d) => d.y2)
     .attr('stroke', 'black')
     .attr('stroke-width', 2)
 
   // Initial circle positions
-  const circleData = [
-    { cx: lineData[0].x, cy: height / 2 },
-    { cx: lineData[1].x, cy: height / 2 }
-  ]
+  const circleData = [{ cx: lineData[0].x, cy: height / 2 }]
 
   // Function to constrain movement to vertical line
   function dragCircle(evt: any) {
@@ -84,17 +81,6 @@ onMounted(() => {
     const mouse_y = d3.pointer(evt, svg.node())[1]
     const relative_y = Math.max(y1, Math.min(y2, mouse_y))
     d3.select(d).attr('cy', relative_y)
-
-    // Update connecting line
-    const coords = svg
-      .selectAll('.circle')
-      .nodes()
-      .map((node) => {
-        return {
-          x: +d3.select(node).attr('cx'),
-          y: +d3.select(node).attr('cy')
-        }
-      })
   }
 
   // Draw circles
@@ -165,19 +151,7 @@ button:active {
   box-shadow: 0 0px 0px black;
 }
 
-.decline {
-  background-color: transparent;
-  color: red;
-  border: 2px solid red;
-  box-shadow: none;
-  padding: 10px;
-}
-.decline:active {
-  background-color: transparent;
-  transform: none;
-}
-
-#trend-widget {
+#tracing-widget {
   width: 640px;
   height: 360px;
 }

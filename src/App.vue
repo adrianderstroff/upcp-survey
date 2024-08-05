@@ -20,7 +20,7 @@ const survey = {
           [5, 6, 7, 8, 9]
         ]
       },
-      axisIndices: [0, 1]
+      axisIndex: 3
     },
     {
       type: 'tracing',
@@ -34,7 +34,7 @@ const survey = {
           [5, 6, 7, 8, 9]
         ]
       },
-      axisIndices: [1, 2]
+      axisIndex: 3
     }
   ],
   taskIndex: -1
@@ -51,10 +51,10 @@ function switchComponent() {
   } else if (survey.taskIndex > survey.tasks.length) {
     window.location.href = 'https://app.prolific.com/submissions/complete?cc=C1BRSWJ9'
   } else {
-    switch(survey.tasks[survey.taskIndex].type) {
+    switch (survey.tasks[survey.taskIndex].type) {
       case 'trend':
-      currentComponent.value = TrendEstimationTask
-      break
+        currentComponent.value = TrendEstimationTask
+        break
       case 'tracing':
         currentComponent.value = LineTracingTask
     }
