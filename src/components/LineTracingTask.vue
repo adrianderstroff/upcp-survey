@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useResultsStore } from '@/stores/resultstore'
-import type { Survey, TrendTask } from '@/types/dataset'
+import type { LineTracingTask, Survey, TrendTask } from '@/types/dataset'
 import * as d3 from 'd3'
 import { onMounted } from 'vue'
 
@@ -14,7 +14,7 @@ const props = defineProps<{
 
 const collectUserData = () => {
   const coords = d3
-    .select('#trend-widget')
+    .select('#tracing-widget')
     .selectAll('.circle')
     .nodes()
     .map((node: any) => {
@@ -36,7 +36,7 @@ const collectUserData = () => {
 }
 
 onMounted(() => {
-  const container = d3.select('#trend-widget')
+  const container = d3.select('#tracing-widget')
   //@ts-ignore
   const bounds = container.node()?.getBoundingClientRect() ?? { width: 0, height: 0 }
   const { width, height } = bounds
@@ -47,31 +47,25 @@ onMounted(() => {
     .attr('height', height)
     .append('g')
     .attr('transform', `translate(${margin.left},${margin.top})`)
-  const layer1 = svg.append('g').attr('class', 'layer1')
-  const layer2 = svg.append('g').attr('class', 'layer2')
 
   // Define line positions
   const currentTask = props.survey.tasks[props.survey.taskIndex]
   const numColumns = currentTask.dataset.columns
-  const columnIndices = (currentTask as TrendTask).axisIndices
+  const columnIndex = (currentTask as LineTracingTask).axisIndex
   const step = width / (numColumns - 1)
-  const x1 = columnIndices[0] * step
-  const x2 = columnIndices[1] * step
+  const x1 = columnIndex * step
   const lineData = [
-    { x: x1, y1: margin.top, y2: height - margin.bottom - margin.top },
-    { x: x2, y1: margin.top, y2: height - margin.bottom - margin.top }
+    { x: x1, y1: margin.top, y2: height - margin.bottom - margin.top }
   ]
 
   // Draw vertical lines
-  layer1
+  svg
     .selectAll('.line')
     .data(lineData)
     .enter()
     .append('line')
-    .attr('x1', (d) => d.x)
-    .attr('x2', (d) => d.x)
-    .attr('y1', (d) => d.y1)
-    .attr('y2', (d) => d.y2)
+    .attr('x', (d) => d.x)
+    .attr('y', (d) => d.y1)
     .attr('stroke', 'black')
     .attr('stroke-width', 2)
 
@@ -92,7 +86,7 @@ onMounted(() => {
     d3.select(d).attr('cy', relative_y)
 
     // Update connecting line
-    const coords = layer2
+    const coords = svg
       .selectAll('.circle')
       .nodes()
       .map((node) => {
@@ -101,16 +95,10 @@ onMounted(() => {
           y: +d3.select(node).attr('cy')
         }
       })
-    layer1
-      .select('.connecting-line')
-      .attr('x1', coords[0].x)
-      .attr('y1', coords[0].y)
-      .attr('x2', coords[1].x)
-      .attr('y2', coords[1].y)
   }
 
   // Draw circles
-  layer2
+  svg
     .selectAll('.circle')
     .data(circleData)
     .enter()
@@ -122,18 +110,6 @@ onMounted(() => {
     .attr('fill', 'steelblue')
     .attr('z-index', -2)
     .call(d3.drag<any, any>().on('drag', dragCircle))
-
-  // Draw connecting line
-  layer1
-    .append('line')
-    .attr('class', 'connecting-line')
-    .attr('x1', circleData[0].cx)
-    .attr('y1', circleData[0].cy)
-    .attr('x2', circleData[1].cx)
-    .attr('y2', circleData[1].cy)
-    .attr('stroke', 'red')
-    .attr('stroke-width', 2)
-    .attr('z-index', -1)
 })
 </script>
 
@@ -146,7 +122,7 @@ onMounted(() => {
       />
       Your browser does not support the video tag.
     </video>
-    <div id="trend-widget"></div>
+    <div id="tracing-widget"></div>
   </div>
   <button @click="collectUserData()">Next</button>
 </template>

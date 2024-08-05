@@ -14,7 +14,7 @@ const props = defineProps<{
 
 const collectUserData = () => {
   const coords = d3
-    .select('#trend-widget')
+    .select('#outlier-widget')
     .selectAll('.circle')
     .nodes()
     .map((node: any) => {
@@ -36,7 +36,7 @@ const collectUserData = () => {
 }
 
 onMounted(() => {
-  const container = d3.select('#trend-widget')
+  const container = d3.select('#outlier-widget')
   //@ts-ignore
   const bounds = container.node()?.getBoundingClientRect() ?? { width: 0, height: 0 }
   const { width, height } = bounds
@@ -146,7 +146,7 @@ onMounted(() => {
       />
       Your browser does not support the video tag.
     </video>
-    <div id="trend-widget"></div>
+    <div id="outlier-widget"></div>
   </div>
   <button @click="collectUserData()">Next</button>
 </template>

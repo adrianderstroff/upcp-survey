@@ -1,14 +1,15 @@
 <script setup>
 import { ref } from 'vue'
 import ComponentA from '@/components/HelloWorld.vue'
-import TrendComponent from '@/components/TrendEstimation.vue'
+import TrendEstimationTask from '@/components/TrendEstimation.vue'
 import AttentionCheck from '@/components/AttentionCheck.vue'
 import SubmitResults from '@/components/SubmitResults.vue'
+import LineTracingTask from './components/LineTracingTask.vue'
 
 const survey = {
   tasks: [
     {
-      type: 'trend',
+      type: 'tracing',
       dataset: {
         columns: 5,
         data: [
@@ -22,7 +23,7 @@ const survey = {
       axisIndices: [0, 1]
     },
     {
-      type: 'trend',
+      type: 'tracing',
       dataset: {
         columns: 4,
         data: [
@@ -50,7 +51,13 @@ function switchComponent() {
   } else if (survey.taskIndex > survey.tasks.length) {
     window.location.href = 'https://app.prolific.com/submissions/complete?cc=C1BRSWJ9'
   } else {
-    currentComponent.value = TrendComponent
+    switch(survey.tasks[survey.taskIndex].type) {
+      case 'trend':
+      currentComponent.value = TrendEstimationTask
+      break
+      case 'tracing':
+        currentComponent.value = LineTracingTask
+    }
   }
 }
 

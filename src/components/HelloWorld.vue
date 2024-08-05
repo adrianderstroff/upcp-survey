@@ -19,16 +19,14 @@ const props = defineProps<{
       Thank you for considering participation in our study. Before proceeding, please read the
       following information carefully to understand how your data will be collected, used, stored,
       and protected. We will collect data including mouse movement as well as interaction with the
-      provided visualizations. This data will be used solely for research purposes related to
+      provided visualizations. This data will be used for research purposes related to
       evaluate our application and to contribute to the field of uncertainty visualization. Your
       data will be stored securely on encrypted servers and will only be accessible to the research
       team. We will retain your data for the duration study, after which it will be permanently
       deleted. Your responses will be anonymized, ensuring that your identity is not linked to your
       data. Accumulated data may be shared with other researchers or published online for academic
       purposes, without any personally identifiable information. You have the right to withdraw your
-      consent and request the deletion of your data at any time without penalty. If you wish to
-      withdraw, please contact us at
-      <a href="mailto: aderstro@uni-muenster.de"> aderstro@uni-muenster.de</a>. Your data will be
+      consent and request the deletion of your data at any time without penalty. Your data will be
       held under the legal framework of GDPR, ensuring that your rights and privacy are protected.
       By clicking <span class="accept">Start Survey</span>, you acknowledge that you have read and
       understood the above information and consent to participate in this study under these terms.

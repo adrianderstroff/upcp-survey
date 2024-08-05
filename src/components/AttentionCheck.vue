@@ -76,7 +76,7 @@ button {
   background-color: red;
 }
 .green {
-  background-color: green;
+  background-color: #007d66;
 }
 .blue {
   background-color: blue;
