@@ -7,7 +7,41 @@ import SubmitResults from '@/components/SubmitResults.vue'
 import LineTracing from './components/LineTracing.vue'
 import OutlierDetection from './components/OutlierDetection.vue'
 
-import type { Survey, SurveyStep, Task } from './types/dataset'
+import type {
+  Dataset,
+  LineTracingTask,
+  OutlierTask,
+  Survey,
+  SurveyStep,
+  Task,
+  TrendTask
+} from './types/dataset'
+
+const dataSet1: Dataset = {
+  name: 'TestDataset1',
+  columns: 5,
+  rows: 5,
+  data: [
+    [[1], [2], [1], [4], [1.2]],
+    [[3], [2.2], [1.1], [3], [5]],
+    [[5], [1.9, 1.95, 2, 2.12, 2.2, 2.0], [2], [6], [3]],
+    [[1], [4], [5], [2.4], [2.5]],
+    [[2], [1.9], [2], [1], [2]]
+  ]
+}
+
+const dataSet2: Dataset = {
+  name: 'TestDataset2',
+  columns: 5,
+  rows: 5,
+  data: [
+    [[1], [2], [3], [4], [5]],
+    [[1], [2], [3], [4], [5]],
+    [[1], [2], [3], [4], [5]],
+    [[1], [2], [3], [4], [5]],
+    [[1], [2], [3], [4], [5]]
+  ]
+}
 
 const survey = {
   name: 'TestSurvey',
@@ -16,33 +50,20 @@ const survey = {
     'intro',
     'attentioncheck',
     {
-      type: 'tracing',
-      dataset: {
-        columns: 5,
-        data: [
-          [1, 2, 3, 4, 5],
-          [2, 3, 4, 5, 6],
-          [3, 4, 5, 6, 7],
-          [4, 5, 6, 7, 8],
-          [5, 6, 7, 8, 9]
-        ]
-      },
-      axisIndex: 3
-    },
+      type: 'outlier',
+      dataset: dataSet1,
+      axisIndices: [1, 2]
+    } as OutlierTask,
     {
       type: 'tracing',
-      dataset: {
-        columns: 4,
-        data: [
-          [1, 2, 3, 4, 5],
-          [2, 3, 4, 5, 6],
-          [3, 4, 5, 6, 7],
-          [4, 5, 6, 7, 8],
-          [5, 6, 7, 8, 9]
-        ]
-      },
+      dataset: dataSet2,
       axisIndex: 3
-    },
+    } as LineTracingTask,
+    {
+      type: 'trend',
+      dataset: dataSet1,
+      axisIndices: [1, 2]
+    } as TrendTask,
     'attentioncheck',
     'submit'
   ] as SurveyStep[],
@@ -54,8 +75,7 @@ const getView = () => {
 
   if (step === 'intro') {
     return WelcomePage
-  }
-  else if (step === 'attentioncheck') {
+  } else if (step === 'attentioncheck') {
     return AttentionCheck
   } else if (survey.stepIndex == survey.steps.length) {
     return SubmitResults
@@ -79,7 +99,7 @@ const currentComponent = ref(WelcomePage)
 
 function switchComponent() {
   survey.stepIndex++
-  currentComponent.value = getView();
+  currentComponent.value = getView()
 }
 
 const nextPageCallback = () => {

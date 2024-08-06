@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useResultsStore } from '@/stores/resultstore'
-import type { Survey, TrendTask } from '@/types/dataset'
+import type { OutlierTask, Survey, TrendTask } from '@/types/dataset'
 import * as d3 from 'd3'
 import { onMounted } from 'vue'
 
@@ -30,7 +30,7 @@ const collectUserData = () => {
     }, [])
 
   const resultsStore = useResultsStore()
-  const name = `TrendEstimation ${props.survey.taskIndex}`
+  const name = `TrendEstimation ${props.survey.stepIndex}`
   resultsStore.addUserResult(name, coords)
   props.nextPageCallback()
 }
@@ -50,10 +50,21 @@ onMounted(() => {
   const layer1 = svg.append('g').attr('class', 'layer1')
   const layer2 = svg.append('g').attr('class', 'layer2')
 
+  const currentTask = props.survey.steps[props.survey.stepIndex] as OutlierTask
+
+  // extract data for lines
+  const axis1 = currentTask.axisIndices[0]
+  const axis2 = currentTask.axisIndices[1]
+  const column1 = currentTask.dataset.data.map((row) => row[axis1])
+  const column1MaxEntries = Math.max(...column1.map((row) => row.length))
+  const column2 = currentTask.dataset.data.map((row) => row[axis2])
+  const column2MaxEntries = Math.max(...column2.map((row) => row.length))
+
+  // TODO: add drawing of lines
+
   // Define line positions
-  const currentTask = props.survey.tasks[props.survey.taskIndex]
   const numColumns = currentTask.dataset.columns
-  const columnIndices = (currentTask as TrendTask).axisIndices
+  const columnIndices = currentTask.axisIndices
   const step = width / (numColumns - 1)
   const x1 = columnIndices[0] * step
   const x2 = columnIndices[1] * step

@@ -2,16 +2,19 @@ export type Dataset = {
   name: string
   columns: number
   rows: number
-  data: number[][]
+  data: number[][][]
 }
 
 export type DatasetType = 'trend' | 'survey' | 'outlier' | 'tracing'
 
+////////////////////////////////////////////////////////////////////////////////
+// Task
 
 export interface Task {
   name: string
   dataset: Dataset
   type: DatasetType
+  rowIndex: number
 }
 
 export interface TrendTask extends Task {
@@ -20,21 +23,22 @@ export interface TrendTask extends Task {
 }
 
 export interface OutlierTask extends Task {
-  axisIndex: number
+  axisIndices: [number, number]
   userValue?: number
 }
 
 export interface LineTracingTask extends Task {
   axisIndex: number
-  rowIndex: number
   userValue?: number
 }
 
 export interface DistributionTask extends Task {
   axisIndex: number
-  rowIndex: number
   userValues?: number[]
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// Survey
 
 export type SurveyStep = Task | 'intro' | 'submit' | 'attentioncheck'
 
