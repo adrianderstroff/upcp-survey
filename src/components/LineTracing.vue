@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useResultsStore } from '@/stores/resultstore'
-import type { LineTracingTask, Survey } from '@/types/dataset'
+import type { LineTracingTask, Survey, Task } from '@/types/dataset'
 import * as d3 from 'd3'
 import { onMounted } from 'vue'
 
@@ -31,7 +31,7 @@ const collectUserData = () => {
 
   console.log('Values:', values)
   const resultsStore = useResultsStore()
-  const name = `TrendEstimation ${props.survey.taskIndex}`
+  const name = (props.survey.steps[props.survey.stepIndex] as Task).name
   resultsStore.addUserResult(name, values)
   props.nextPageCallback()
 }
@@ -49,7 +49,7 @@ onMounted(() => {
     .attr('transform', `translate(${margin.left},${margin.top})`)
 
   // Define line positions
-  const currentTask = props.survey.tasks[props.survey.taskIndex]
+  const currentTask = props.survey.steps[props.survey.stepIndex] as Task
   const numColumns = currentTask.dataset.columns
   const columnIndex = (currentTask as LineTracingTask).axisIndex
   const step = (width - margin.left - margin.right) / (numColumns - 1)
@@ -94,6 +94,7 @@ onMounted(() => {
     .attr('cy', (d) => d.cy)
     .attr('r', 8)
     .attr('fill', 'steelblue')
+    .attr('cursor', 'grab')
     .attr('z-index', -2)
     .call(d3.drag<any, any>().on('drag', dragCircle))
 })
@@ -101,7 +102,7 @@ onMounted(() => {
 
 <template>
   <div class="greetings">
-    <video width="640" height="360" controls>
+    <video width="640" height="360" loop autoplay>
       <source
         src="https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4"
         type="video/mp4"
@@ -127,6 +128,7 @@ content {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  position: relative;
 }
 
 h3 {
@@ -152,7 +154,8 @@ button:active {
 }
 
 #tracing-widget {
-  width: 640px;
-  height: 360px;
+  width: 100%;
+  height: 100%;
+  position: absolute;
 }
 </style>

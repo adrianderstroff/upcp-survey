@@ -1,13 +1,20 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
-import ComponentA from '@/components/HelloWorld.vue'
-import TrendEstimationTask from '@/components/TrendEstimation.vue'
+import WelcomePage from '@/components/HelloWorld.vue'
+import TrendEstimation from '@/components/TrendEstimation.vue'
 import AttentionCheck from '@/components/AttentionCheck.vue'
 import SubmitResults from '@/components/SubmitResults.vue'
-import LineTracingTask from './components/LineTracingTask.vue'
+import LineTracing from './components/LineTracing.vue'
+import OutlierDetection from './components/OutlierDetection.vue'
+
+import type { Survey, SurveyStep, Task } from './types/dataset'
 
 const survey = {
-  tasks: [
+  name: 'TestSurvey',
+  taskType: 'tracing',
+  steps: [
+    'intro',
+    'attentioncheck',
     {
       type: 'tracing',
       dataset: {
@@ -35,30 +42,44 @@ const survey = {
         ]
       },
       axisIndex: 3
-    }
-  ],
-  taskIndex: -1
-}
+    },
+    'attentioncheck',
+    'submit'
+  ] as SurveyStep[],
+  stepIndex: 0
+} as Survey
 
-const currentComponent = ref(ComponentA)
-function switchComponent() {
-  survey.taskIndex++
+const getView = () => {
+  const step = survey.steps[survey.stepIndex]
 
-  if (survey.taskIndex == 0) {
-    currentComponent.value = AttentionCheck
-  } else if (survey.taskIndex == survey.tasks.length) {
-    currentComponent.value = SubmitResults
-  } else if (survey.taskIndex > survey.tasks.length) {
+  if (step === 'intro') {
+    return WelcomePage
+  }
+  else if (step === 'attentioncheck') {
+    return AttentionCheck
+  } else if (survey.stepIndex == survey.steps.length) {
+    return SubmitResults
+  } else if (survey.stepIndex > survey.steps.length) {
     window.location.href = 'https://app.prolific.com/submissions/complete?cc=C1BRSWJ9'
   } else {
-    switch (survey.tasks[survey.taskIndex].type) {
+    switch ((survey.steps[survey.stepIndex] as Task).type) {
       case 'trend':
-        currentComponent.value = TrendEstimationTask
-        break
+        return TrendEstimation
       case 'tracing':
-        currentComponent.value = LineTracingTask
+        return LineTracing
+      case 'outlier':
+        return OutlierDetection
     }
   }
+
+  return WelcomePage
+}
+
+const currentComponent = ref(WelcomePage)
+
+function switchComponent() {
+  survey.stepIndex++
+  currentComponent.value = getView();
 }
 
 const nextPageCallback = () => {

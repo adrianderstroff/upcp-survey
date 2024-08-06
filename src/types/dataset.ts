@@ -8,7 +8,7 @@ export type Dataset = {
 export type DatasetType = 'trend' | 'survey' | 'outlier' | 'tracing'
 
 
-export type Task = {
+export interface Task {
   name: string
   dataset: Dataset
   type: DatasetType
@@ -36,8 +36,11 @@ export interface DistributionTask extends Task {
   userValues?: number[]
 }
 
+export type SurveyStep = Task | 'intro' | 'submit' | 'attentioncheck'
+
 export type Survey = {
   name: string
-  tasks: Task[]
-  taskIndex: number
+  taskType: string
+  steps: SurveyStep[]
+  stepIndex: number
 }
