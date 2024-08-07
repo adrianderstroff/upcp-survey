@@ -6,6 +6,7 @@ import AttentionCheck from '@/components/AttentionCheck.vue'
 import SubmitResults from '@/components/SubmitResults.vue'
 import LineTracing from './components/LineTracing.vue'
 import OutlierDetection from './components/OutlierDetection.vue'
+import { get_video_url } from '@/util/io.ts'
 
 import type {
   Dataset,
@@ -19,7 +20,7 @@ import type {
 
 const dataSet1: Dataset = {
   name: 'TestDataset1',
-  columns: 5,
+  columns: 8,
   rows: 5,
   data: [
     [[1], [2], [1], [4], [1.2]],
@@ -32,7 +33,7 @@ const dataSet1: Dataset = {
 
 const dataSet2: Dataset = {
   name: 'TestDataset2',
-  columns: 5,
+  columns: 8,
   rows: 5,
   data: [
     [[1], [2], [3], [4], [5]],
@@ -50,20 +51,23 @@ const survey = {
     'intro',
     'attentioncheck',
     {
-      type: 'outlier',
-      dataset: dataSet1,
-      axisIndices: [1, 2]
-    } as OutlierTask,
-    {
       type: 'tracing',
       dataset: dataSet2,
-      axisIndex: 3
+      axisIndex: 0,
+      videoURL: get_video_url('airplane-trend-05')
     } as LineTracingTask,
     {
       type: 'trend',
       dataset: dataSet1,
-      axisIndices: [1, 2]
+      axisIndices: [0, 1],
+      videoURL: get_video_url('airplane-trend-05')
     } as TrendTask,
+    {
+      type: 'outlier',
+      dataset: dataSet1,
+      axisIndices: [1, 2],
+      videoURL: get_video_url('airplane-trend-05')
+    } as OutlierTask,
     'attentioncheck',
     'submit'
   ] as SurveyStep[],

@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { useResultsStore } from '@/stores/resultstore'
 import type { LineTracingTask, Survey, Task } from '@/types/dataset'
+import PopUp from './PopUp.vue'
 import * as d3 from 'd3'
 import { onMounted } from 'vue'
+import { ref } from 'vue'
+
+const videoFileName = ref('')
 
 // Define props
 const props = defineProps<{
@@ -12,7 +16,7 @@ const props = defineProps<{
   declineCallback: () => void
 }>()
 
-const margin = { top: 8, right: 8, bottom: 8, left: 8 }
+const margin = { top: 29, right: 80, bottom: 18, left: 80 }
 
 const collectUserData = () => {
   const container = d3.select('#tracing-widget')
@@ -37,6 +41,9 @@ const collectUserData = () => {
 }
 
 onMounted(() => {
+  // set video url
+  videoFileName.value = props.survey.steps[props.survey.stepIndex].videoURL
+
   const container = d3.select('#tracing-widget')
   //@ts-ignore
   const bounds = container.node()?.getBoundingClientRect() ?? { width: 0, height: 0 }
@@ -66,7 +73,7 @@ onMounted(() => {
     .attr('y1', (d) => d.y1)
     .attr('x2', (d) => d.x)
     .attr('y2', (d) => d.y2)
-    .attr('stroke', 'black')
+    .attr('stroke', 'rgba(255, 0, 0, 0.7)')
     .attr('stroke-width', 2)
 
   // Initial circle positions
@@ -93,7 +100,7 @@ onMounted(() => {
     .attr('cx', (d) => d.cx)
     .attr('cy', (d) => d.cy)
     .attr('r', 8)
-    .attr('fill', 'steelblue')
+    .attr('fill', 'red')
     .attr('cursor', 'grab')
     .attr('z-index', -2)
     .call(d3.drag<any, any>().on('drag', dragCircle))
@@ -101,12 +108,14 @@ onMounted(() => {
 </script>
 
 <template>
+  <PopUp
+    text="Trace the highlighted line to the axis in red. Move the slider to the point where the axis intersects this axis. Once you are done press the Next button."
+    isVisible="true"
+  ></PopUp>
+  <h1>Line Tracing</h1>
   <div class="greetings">
-    <video width="640" height="360" loop autoplay>
-      <source
-        src="https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4"
-        type="video/mp4"
-      />
+    <video width="1280" height="720" loop autoplay>
+      <source :src="videoFileName" type="video/mp4" />
       Your browser does not support the video tag.
     </video>
     <div id="tracing-widget"></div>
@@ -115,6 +124,10 @@ onMounted(() => {
 </template>
 
 <style scoped>
+h1 {
+  margin-bottom: 1em;
+}
+
 content {
   display: flex;
   flex-direction: column;
@@ -136,7 +149,7 @@ h3 {
 }
 
 button {
-  margin-top: 2em;
+  margin-top: 1em;
   padding: 1em 2em;
   font-size: 1.5em;
   background-color: hsla(160, 100%, 37%, 1);

@@ -15,6 +15,7 @@ export interface Task {
   dataset: Dataset
   type: DatasetType
   rowIndex: number
+  videoURL: string
 }
 
 export interface TrendTask extends Task {

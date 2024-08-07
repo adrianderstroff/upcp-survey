@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { useResultsStore } from '@/stores/resultstore'
-import type { OutlierTask, Survey, TrendTask } from '@/types/dataset'
+import type { OutlierTask, Survey } from '@/types/dataset'
 import * as d3 from 'd3'
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
+
+const videoFileName = ref('')
 
 // Define props
 const props = defineProps<{
@@ -36,6 +38,9 @@ const collectUserData = () => {
 }
 
 onMounted(() => {
+  // set video url
+  videoFileName.value = props.survey.steps[props.survey.stepIndex].videoURL
+
   const container = d3.select('#outlier-widget')
   //@ts-ignore
   const bounds = container.node()?.getBoundingClientRect() ?? { width: 0, height: 0 }
@@ -150,11 +155,9 @@ onMounted(() => {
 
 <template>
   <div class="greetings">
+    <h3>Outlier Detection</h3>
     <video width="640" height="360" controls>
-      <source
-        src="https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4"
-        type="video/mp4"
-      />
+      <source :src="videoFileName" type="video/mp4" />
       Your browser does not support the video tag.
     </video>
     <div id="outlier-widget"></div>

@@ -2,7 +2,9 @@
 import { useResultsStore } from '@/stores/resultstore'
 import type { Survey, TrendTask } from '@/types/dataset'
 import * as d3 from 'd3'
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
+
+const videoFileName = ref('')
 
 // Define props
 const props = defineProps<{
@@ -36,11 +38,14 @@ const collectUserData = () => {
 }
 
 onMounted(() => {
+  // set video url
+  videoFileName.value = props.survey.steps[props.survey.stepIndex].videoURL
+
   const container = d3.select('#trend-widget')
   //@ts-ignore
   const bounds = container.node()?.getBoundingClientRect() ?? { width: 0, height: 0 }
   const { width, height } = bounds
-  const margin = { top: 3, right: 8, bottom: 3, left: 8 }
+  const margin = { top: 29, right: 80, bottom: 18, left: 80 }
   const svg = container
     .append('svg')
     .attr('width', width)
@@ -51,16 +56,17 @@ onMounted(() => {
   const layer2 = svg.append('g').attr('class', 'layer2')
 
   // Define line positions
-  const currentTask = props.survey.tasks[props.survey.taskIndex]
-  const numColumns = currentTask.dataset.columns
-  const columnIndices = (currentTask as TrendTask).axisIndices
-  const step = width / (numColumns - 1)
+  const currentStep = props.survey.steps[props.survey.stepIndex]
+  const numColumns = currentStep.dataset.columns
+  const columnIndices = (currentStep as TrendTask).axisIndices
+  const step = (width - margin.left - margin.right) / (numColumns - 1)
   const x1 = columnIndices[0] * step
   const x2 = columnIndices[1] * step
   const lineData = [
     { x: x1, y1: margin.top, y2: height - margin.bottom - margin.top },
     { x: x2, y1: margin.top, y2: height - margin.bottom - margin.top }
   ]
+  console.log(numColumns, columnIndices, step, x1, x2)
 
   // Draw vertical lines
   layer1
@@ -72,7 +78,7 @@ onMounted(() => {
     .attr('x2', (d) => d.x)
     .attr('y1', (d) => d.y1)
     .attr('y2', (d) => d.y2)
-    .attr('stroke', 'black')
+    .attr('stroke', 'rgba(255, 0, 0, 0.6)')
     .attr('stroke-width', 2)
 
   // Initial circle positions
@@ -119,7 +125,7 @@ onMounted(() => {
     .attr('cx', (d) => d.cx)
     .attr('cy', (d) => d.cy)
     .attr('r', 8)
-    .attr('fill', 'steelblue')
+    .attr('fill', 'red')
     .attr('z-index', -2)
     .call(d3.drag<any, any>().on('drag', dragCircle))
 
@@ -132,18 +138,16 @@ onMounted(() => {
     .attr('x2', circleData[1].cx)
     .attr('y2', circleData[1].cy)
     .attr('stroke', 'red')
-    .attr('stroke-width', 2)
+    .attr('stroke-width', 4)
     .attr('z-index', -1)
 })
 </script>
 
 <template>
+  <h1>Trend Estimation</h1>
   <div class="greetings">
-    <video width="640" height="360" controls>
-      <source
-        src="https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4"
-        type="video/mp4"
-      />
+    <video width="1280" height="720" loop autoplay>
+      <source :src="videoFileName" type="video/mp4" />
       Your browser does not support the video tag.
     </video>
     <div id="trend-widget"></div>
@@ -152,12 +156,8 @@ onMounted(() => {
 </template>
 
 <style scoped>
-content {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
+h1 {
+  margin-bottom: 1em;
 }
 
 .greetings {
@@ -165,6 +165,7 @@ content {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  position: relative;
 }
 
 h3 {
@@ -172,7 +173,7 @@ h3 {
 }
 
 button {
-  margin-top: 2em;
+  margin-top: 1em;
   padding: 1em 2em;
   font-size: 1.5em;
   background-color: hsla(160, 100%, 37%, 1);
@@ -202,7 +203,8 @@ button:active {
 }
 
 #trend-widget {
-  width: 640px;
-  height: 360px;
+  width: 100%;
+  height: 100%;
+  position: absolute;
 }
 </style>
